@@ -48,6 +48,52 @@ plt.ion()
 !ls
 
 """### Step2 載入訓練/驗證/測試資料集"""
+# 訓練與驗證資料集建立
+data_transforms = {
+    'train': transforms.Compose([
+        #transforms.RandomResizedCrop(224),
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        #transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'val': transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+    'test': transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]),
+}
+
+#設定訓練/驗證/測試資料集,轉換pytorch資料格式
+data_dir = 'gamania_data'
+image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
+                                          data_transforms[x])
+                  for x in ['train', 'val','test']}
+
+dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=8,
+                                             shuffle=True, num_workers=0)
+              for x in ['train', 'val']}
+
+test_dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=1,
+                                             shuffle=True, num_workers=0)
+              for x in ['test']}
+
+dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val','test']}
+class_names = image_datasets['train'].classes
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+print(device)
+print(class_names)
+print(dataset_sizes)
 
 def imshow(inp, title=None):
     """Imshow for Tensor."""
